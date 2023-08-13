@@ -27,43 +27,43 @@ percent=$(awk -v min=$min_volt -v max=$max_volt -v now_volt=$batt_volt \
 
 battpct=$1
 brightness=0.3
-	# 0xA1 -> red write, 0xA2 -> green write, 0xA3 -> blue write	
-	# 80 = 128 (255/2)
-	# 55 = 85 (255/3)
-	# 4B = 75 (224/3)
-	# 43 = 67 (112/255) *.3
-	# 40 = 64 (96/255) *.3
+# 0xA1 -> red write, 0xA2 -> green write, 0xA3 -> blue write	
+# 80 = 128 (255/2)
+# 55 = 85 (255/3)
+# 4B = 75 (224/3)
+# 43 = 67 (112/255) *.3
+# 40 = 64 (96/255) *.3
 	
-	# sudo modprobe -r bbqX0kbd
-	if (( $(bc <<< "$battpct >= 80") )); then
-		# blue, 0|0|255*.3
-		sudo i2cset -y 1 0x1F 0xA1 0x00
-		sudo i2cset -y 1 0x1F 0xA2 0x00
-		sudo i2cset -y 1 0x1F 0xA3 0x80
-	elif (( $(bc <<< "$battpct >= 60") )) then
-		# green, 0|255*.3|0
-		sudo i2cset -y 1 0x1F 0xA1 0x00
-		sudo i2cset -y 1 0x1F 0xA2 0x80
-		sudo i2cset -y 1 0x1F 0xA3 0x00
-	elif (( $(bc <<< "$(battpct >= 40)") )); then
-		# yellow, 67 (112/255)*.3|85 (128/255)*.3|0
-		sudo i2cset -y 1 0x1F 0xA1 0x43
-		sudo i2cset -y 1 0x1F 0xA2 0x80
-		sudo i2cset -y 1 0x1F 0xA3 0x00
-	elif (( $(bc <<< "$battpct >= 20") )); then
-		# orange, 85 (128/255)*.3|64 (96/255)*.3|0
-		sudo i2cset -y 1 0x1F 0xA1 0x80
-		sudo i2cset -y 1 0x1F 0xA2 0x40
-		sudo i2cset -y 1 0x1F 0xA3 0x00
-	else
-		# red, 85 (128/255)*.3|0|0
-		sudo i2cset -y 1 0x1F 0xA1 0x80
-		sudo i2cset -y 1 0x1F 0xA2 0x00
-		sudo i2cset -y 1 0x1F 0xA3 0x00
-	fi
-	# turns LED on. use 0xFF for on, 0x00 for off
-	sudo i2cset -y 1 0x1F 0xA0 0xFF
-	# sudo modprobe bbqX0kbd
+# sudo modprobe -r bbqX0kbd
+if (( $(bc <<< "$battpct >= 80") )); then
+  # blue, 0|0|255*.3
+  sudo i2cset -y 1 0x1F 0xA1 0x00
+  sudo i2cset -y 1 0x1F 0xA2 0x00
+  sudo i2cset -y 1 0x1F 0xA3 0x80
+elif (( $(bc <<< "$battpct >= 60") )) then
+  # green, 0|255*.3|0
+  sudo i2cset -y 1 0x1F 0xA1 0x00
+  sudo i2cset -y 1 0x1F 0xA2 0x80
+  sudo i2cset -y 1 0x1F 0xA3 0x00
+elif (( $(bc <<< "$(battpct >= 40)") )); then
+  # yellow, 67 (112/255)*.3|85 (128/255)*.3|0
+  sudo i2cset -y 1 0x1F 0xA1 0x43
+  sudo i2cset -y 1 0x1F 0xA2 0x80
+  sudo i2cset -y 1 0x1F 0xA3 0x00
+elif (( $(bc <<< "$battpct >= 20") )); then
+  # orange, 85 (128/255)*.3|64 (96/255)*.3|0
+  sudo i2cset -y 1 0x1F 0xA1 0x80
+  sudo i2cset -y 1 0x1F 0xA2 0x40
+  sudo i2cset -y 1 0x1F 0xA3 0x00
+else
+  # red, 85 (128/255)*.3|0|0
+  sudo i2cset -y 1 0x1F 0xA1 0x80
+  sudo i2cset -y 1 0x1F 0xA2 0x00
+  sudo i2cset -y 1 0x1F 0xA3 0x00
+fi
+  # turns LED on. use 0xFF for on, 0x00 for off
+  sudo i2cset -y 1 0x1F 0xA0 0xFF
+  # sudo modprobe bbqX0kbd
 
 # set_rgb percent
 # this re-enables it
