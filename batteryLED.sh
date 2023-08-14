@@ -17,15 +17,15 @@ max_volt=4.2
 # tricorder arduino had to use 3.6 as reference mult after a firmware update
 batt_volt=$(echo "$V * 3.6 * 2 / 4095" | bc -l | cut -c1-5)
 now_volt=$batt_volt
-echo $batt_volt
+# echo $(($batt_volt-$min_volt))
 
-# pct1=$((now_volt - min_volt))
-# percent=$((pct1 * 100))
+# pct1=$(($now_volt-$min_volt))
+percent=$(awk -v x=$min_volt -v y=$now_volt 'BEGIN { printf("%d\n", (y-x)*100) }')
 # percent=$(awk -v min=$min_volt -v max=$max_volt -v now_volt=$batt_volt \
 # { printf \""%.0f\n\"", {now_volt - min} / {max - min} * 100 } )
 
-battpct=42
-# battpct=percent
+# battpct=42
+battpct=percent
 brightness=0.3
 # 0xA1 -> red write, 0xA2 -> green write, 0xA3 -> blue write
 # 80 = 128 (255/2)
@@ -34,22 +34,22 @@ brightness=0.3
 # 43 = 67 (112/255) *.3
 # 40 = 64 (96/255) *.3
 # sudo modprobe -r bbqX0kbd
-if [ $battpct -gt 79.9 ]; then
+if ((battpct>80)); then
   # blue, 0|0|255*.3
   sudo i2cset -y 1 0x1F 0xA1 0x00
   sudo i2cset -y 1 0x1F 0xA2 0x00
   sudo i2cset -y 1 0x1F 0xA3 0x80
-elif [ $battpct -gt 59.9 ]; then
+elif ((battpct>60)); then
   # green, 0|255*.3|0
   sudo i2cset -y 1 0x1F 0xA1 0x00
   sudo i2cset -y 1 0x1F 0xA2 0x80
   sudo i2cset -y 1 0x1F 0xA3 0x00
-elif [ $battpct -gt 39.9 ]; then
+elif ((battpct>40)); then
   # yellow, 67 (112/255)*.3|85 (128/255)*.3|0
   sudo i2cset -y 1 0x1F 0xA1 0x43
   sudo i2cset -y 1 0x1F 0xA2 0x80
   sudo i2cset -y 1 0x1F 0xA3 0x00
-elif [ $battpct -gt 19.9 ]; then
+elif ((battpct>20)); then
   # orange, 85 (128/255)*.3|64 (96/255)*.3|0
   sudo i2cset -y 1 0x1F 0xA1 0x80
   sudo i2cset -y 1 0x1F 0xA2 0x40
