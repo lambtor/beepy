@@ -16,13 +16,10 @@ max_volt=4.2
 # using 3.3 as the reference voltage here
 # tricorder arduino had to use 3.6 as reference mult after a firmware update
 batt_volt=$(echo "$V * 3.6 * 2 / 4095" | bc -l | cut -c1-5)
-now_volt=$batt_volt
+# now_volt=$batt_volt
 # echo $(($batt_volt-$min_volt))
-
-# pct1=$(($now_volt-$min_volt))
-percent=$(awk -v x=$min_volt -v y=$now_volt 'BEGIN { printf("%d\n", (y-x)*100) }')
-# percent=$(awk -v min=$min_volt -v max=$max_volt -v now_volt=$batt_volt \
-# { printf \""%.0f\n\"", {now_volt - min} / {max - min} * 100 } )
+percent=$(awk -v min=$min_volt -v now=$batt_volt -v max=$max_volt \
+'BEGIN { printf("%d\n", ((now-min)/(max-min))*100) }')
 
 # battpct=42
 battpct=percent
