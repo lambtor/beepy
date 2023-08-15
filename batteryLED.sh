@@ -7,6 +7,7 @@
 # maybe this should be reconfigured to blink or solid show batt% color
 # when side button pressed|held?
 # disable keyboard for battery poll and RGB update
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games
 sudo modprobe -r bbqX0kbd
 V=$(i2cget -y 1 0x1F 0x17 w | sed s/0x// | tr '[:lower:]' '[:upper:]')
 V=$(echo "obase=10; ibase=16; $V" | bc)
@@ -16,9 +17,18 @@ max_volt=4.2
 # using 3.3 as the reference voltage here
 # tricorder arduino had to use 3.6 as reference mult after a firmware update
 batt_volt=$(echo "$V * 3.6 * 2 / 4095" | bc -l | cut -c1-5)
-# now_volt=$batt_volt
+now_volt=$batt_volt
+if ((`echo $now_volt '<' $min_volt|bc`)); then
+  now_volt=$min_volt
+fi
+
+if ((`echo $now_volt '>' $max_volt|bc`)); then
+  now_volt=$max_volt
+fi
+# now_volt=$((batt_volt > max_volt ? max_volt : batt_volt))
+# now_volt=$((now_volt < min_volt ? min_volt : now_volt))
 # echo $(($batt_volt-$min_volt))
-percent=$(awk -v min=$min_volt -v now=$batt_volt -v max=$max_volt \
+percent=$(awk -v min=$min_volt -v now=$now_volt -v max=$max_volt \
 'BEGIN { printf("%d\n", ((now-min)/(max-min))*100) }')
 
 # battpct=42
